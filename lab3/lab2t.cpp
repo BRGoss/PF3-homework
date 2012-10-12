@@ -4,22 +4,20 @@
 
 using namespace std;
 
-class node
+template<class T> class node
 {
   public:
-    typedef int data_t;
-
-    node(data_t d) { next = NULL; data = d; }
+    node(T d) { next = NULL; data = d; }
 
     node *next;
-    data_t data;
+    T data;
 };
 
 
-class linked_list
+template<class T> class linked_list
 {
   private:
-    node *head;
+    node<T> *head;
 
   public:
 
@@ -39,7 +37,7 @@ class linked_list
         else
         {
             size = 1;
-            node *counter;
+            node<T> *counter;
             counter = head;
             while (counter->next != NULL)
             {
@@ -50,25 +48,25 @@ class linked_list
         }
     };
 
-    void add(int n, node::data_t d)
+    void add(int n, T d)
     {
         if (!head && n != 0) {cout << "Nothing in list" << endl;}
 
         else if (head && n == 0)
         {
-            node *tmp;
+            node<T> *tmp;
             tmp = head;
-            head = new node(d);
+            head = new node<T>(d);
             head->next = tmp;
         }
 
-        else if (n == 0) {head = new node(d);}
+        else if (n == 0) {head = new node<T>(d);}
 
         else if (n == -2)
         {
-            node *tmp;
+            node<T> *tmp;
             tmp = get_last_p();
-            tmp->next = new node(d);
+            tmp->next = new node<T>(d);
         }
 
         else if (n > (size()))
@@ -80,53 +78,54 @@ class linked_list
         {
             if (n < size())
             {
-                node *tmp1, *tmp2;
+                node<T> *tmp1, *tmp2;
                 tmp1 = get_node(n - 1);
                 tmp2 = get_node(n);
-                tmp1->next = new node(d);
+                tmp1->next = new node<T>(d);
                 tmp1->next->next = tmp2;
             }
             else
             {
-                node *tmp;
+                node<T> *tmp;
                 tmp = get_last_p();
-                tmp->next = new node(d);
+                tmp->next = new node<T>(d);
             }
 
         }
     };
 
-    void add_last(node::data_t d)
+    void add_last(T d)
     {
         int sz = -2;
         add(sz, d);
     };
 
-    void add_first(node::data_t d)
+    void add_first(T d)
     {
         add(0, d);
     };
 
-    node::data_t get(int n)
+    T get(int n)
     {
         if (!head)
         {
-            cout >> "No stacked list exists" >> endl;
-            return;
+            cout << "No stacked list exists" << endl;
         }
-        
-        node *tmp;
-        tmp = get_node(n);
+        else
+        {
+            node<T> *tmp;
+            tmp = get_node(n);
+        }
     };
 
-    node::data_t get_first()
+    T get_first()
     {
         return head->data;
     };
 
-    node::data_t get_last()
+    T get_last()
     {
-        node *tmp;
+        node<T> *tmp;
         tmp = get_last_p();
         return tmp->data;
     };
@@ -142,7 +141,7 @@ class linked_list
 
         else if (n == 0)
         {
-            node *tmp;
+            node<T> *tmp;
             tmp = head->next;
             delete(head);
             head = tmp;
@@ -150,7 +149,7 @@ class linked_list
 
         else if (n == -2)
         {
-            node *tmp1, *tmp2;
+            node<T> *tmp1, *tmp2;
             tmp1 = get_last_p();
             tmp2 = get_node((size() - 2));
             delete(tmp1);
@@ -159,7 +158,7 @@ class linked_list
 
         else
         {
-            node *tmp1, *tmp2;
+            node<T> *tmp1, *tmp2;
             tmp1 = get_node(n - 1);
             tmp2 = tmp1->next->next;
             delete(tmp1->next);
@@ -178,10 +177,10 @@ class linked_list
         remove(-2);
     };
 
-    node *get_node(int n)
+    node<T> *get_node(int n)
     {
         int counter = 0;
-        node *tmp;
+        node<T> *tmp;
         tmp = head;
         while (counter < n)
         {
@@ -191,9 +190,9 @@ class linked_list
         return tmp;
     };
 
-    node *get_last_p()
+    node<T> *get_last_p()
     {
-        node *last;
+        node<T> *last;
         last = head;
         while (last->next != NULL)
         {
@@ -204,7 +203,7 @@ class linked_list
 
     void dump()
     {
-        node *tptr;
+        node<T> *tptr;
 
         cout << "    DUMP: (size = " << size() << ", first = " << get_first() << ", last = " << get_last() << ")\n";
 
@@ -227,7 +226,7 @@ class linked_list
 
 int main(void)
 {
-    linked_list ll;
+    linked_list<int> ll;
     string cmd;
     int i, d;
 
