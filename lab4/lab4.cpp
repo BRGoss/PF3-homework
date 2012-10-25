@@ -61,26 +61,25 @@ template<class T> class linked_list
             tmp = head;
             head = new node<T>(d);
             head->next = tmp;
-            if (test_tail(tmp))
-            {
-                tail = tmp;
-                tail->prev = head;
-            }
+            tmp->prev = head;
+            return;
         }
 
         else if (n == 0) 
         {
             head = new node<T>(d);
             tail = head;
+            return;
         }
 
-        else if (n == -2)
+        else if (n == size())
         {
             node<T> *tmp;
             tmp = tail;
             tail = new node<T>(d);
             tmp->next = tail;
             tail->prev = tmp;
+            return;
         }
 
         else if (n > (size()))
@@ -90,24 +89,29 @@ template<class T> class linked_list
 
         else
         {
-            if (n < size())
+           if (n <= (size() - 2))
             {
                 node<T> *tmp1, *tmp2, *tmp3;
                 tmp1 = get_node(n - 1);
-                tmp2 = get_node(n);
+                tmp2 = tmp1->next;
                 tmp3 = new node<T>(d);
                 tmp1->next = tmp3;
                 tmp2->prev = tmp3;
                 tmp3->next = tmp2;
                 tmp3->prev = tmp1;
+                return;
             }
-            else
+
+            else if (n == (size() - 1))
             {
-                node<T> *tmp;
-                tmp = tail;
-                tail = new node<T>(d);
-                tmp->next = tail;
-                tail->prev = tmp;
+                node<T> *tmp1, *tmp2;
+                tmp2 = tail->prev;
+                tmp1 = new node<T>(d);
+                tmp1->next = tail;
+                tail->prev = tmp1;
+                tmp2->next = tmp1;
+                tmp1->prev = tmp2;
+                return;
             }
 
         }
@@ -115,8 +119,7 @@ template<class T> class linked_list
 
     void add_last(T d)
     {
-        int sz = -2;
-        add(sz, d);
+        add(size(), d);
     };
 
     void add_first(T d)
@@ -132,8 +135,14 @@ template<class T> class linked_list
             return -1;
         }
 
+        if (n >= size())
+        {
+            cout << "no node " << n << " exists" << endl;
+            return -1;
+        }
+
         node<T> *tmp;
-        if (n == -2)  {return tail->data;}
+        if (n == (size() - 1))  {return tail->data;}
         if (n == 0)   {return head->data;}
         tmp = get_node(n);
         return tmp->data;
@@ -146,7 +155,7 @@ template<class T> class linked_list
 
     T get_last()
     {
-        get(-2);
+        get(size() - 1);
     };
 
     void remove(int n)
@@ -154,7 +163,6 @@ template<class T> class linked_list
 
         if (!head) {cout << no_list << endl; return;}
 
-        node<T> *tester = get_node(n);
 
         if (n >= size())
         {
@@ -181,9 +189,10 @@ template<class T> class linked_list
             delete(head);
             head = tmp;
             head->prev = NULL;
+            return;
         }
 
-        else if ((n == -2) || (tail == tester))
+        else if (n == size() - 1)
         {
             node<T> *tmp1, *tmp2;
             tmp1 = tail;
@@ -205,7 +214,7 @@ template<class T> class linked_list
             {
                 user = user->next;
             }
-            tmp1 = tmp1->prev;
+            tmp1 = tmp2->prev;
             tmp3 = tmp2->next;
             delete(tmp2);
             tmp1->next = tmp3;
@@ -221,7 +230,7 @@ template<class T> class linked_list
 
     void remove_last()
     {
-        remove(-2);
+        remove(size() - 1);
     };
 
     void reset_ptr()
