@@ -2,6 +2,7 @@ put 5 five
 put 2 two
 put 1 one
 put 4 four
+put 3 three
 put 9 nine
 put 7 seven
 put 8 eight
@@ -22,5 +23,13 @@ rget 10 ten
 rget 2 two
 rem 10 ten
 rem 2 two
+dump 0 zero
+rem 8 eight
+dump 0 zero
+rem 4 four
+dump 0 zero
+rem 5 five
+dump 0 zero
+rem 9 nine
 dump 0 zero
 quit 0 zero

@@ -12,6 +12,8 @@ public:
 
 	node *left;
 	node *right;
+	node *pleft;
+	node *pright;
 
 	node(int k, string v)
 	{
@@ -38,17 +40,14 @@ private:
 
 		if (k < tmp->key)
 		{
-			cout << "inside place " << k << "<" << tmp->key << endl;
 			if (tmp->left == NULL)
 			{
-				cout << "new node and k is less than " << tmp->key << endl;
 				tmp->left = new node(k, v);
 				return;
 			}
 
 			if (tmp->left != NULL)
 			{
-				cout << "moving to the left" << endl;
 				tmp = tmp->left;
 				place(k, v, tmp);
 				return;
@@ -57,17 +56,14 @@ private:
 
 		if (k > tmp->key)
 		{
-			cout << "Inside place " << k << ">" << tmp->key << endl;
 			if (tmp->right == NULL)
 			{
-				cout << "new node and k is greater than " << tmp->key << endl;
 				tmp->right = new node(k, v);
 				return;
 			}
 
 			if (tmp->right != NULL)
 			{
-				cout << "moving to the right" << endl;
 				tmp = tmp->right;
 				place(k, v, tmp);
 				return;
@@ -137,20 +133,24 @@ private:
 		}
 	}
 
-	node* rec_get(int k, node *tmp)
+	node* rec_get(int k, node *tmp, node *prev, bool retprev)
 	{
 		if (k == tmp->key)
 		{
+			if (retprev)
+			{	
+				return prev;
+			}
 			return tmp;
 		}
 
 		if (k < tmp->key)
 		{
-			cout << k << " is < " << tmp->key << endl;
 			if (tmp->left != NULL)
 			{
+				prev = tmp;
 				tmp = tmp->left;
-				rec_get(k, tmp);
+				rec_get(k, tmp, prev, retprev);
 			}
 
 			else if (tmp->left == NULL)
@@ -161,11 +161,11 @@ private:
 
 		else if (k > tmp->key)
 		{
-			cout << k << " is > " << tmp->key << endl;
 			if (tmp->right != NULL)
 			{
+				prev = tmp;
 				tmp = tmp->right;
-				rec_get(k, tmp);
+				rec_get(k, tmp, prev, retprev);
 			}
 
 			else if (tmp->right == NULL)
@@ -175,24 +175,73 @@ private:
 		}
 	}
 
-	node* recursive_remove(node *tmp)
+	void recursive_remove(node *tmp)
 	{
-		node *prev;
+		node *prev, *rem, *passer;
+		passer = root;
+		prev = tmp;
+		int search, keypass;
+		string valuepass;
 
+		if ((tmp->left == NULL) && (tmp->right == NULL))
+		{
+			search = tmp->key;
+			rem = tmp;
+			prev = rec_get(search, passer, rem, true);
+
+			if ((prev->left != NULL) && (prev->left->key == rem->key))
+			{
+				prev->left = NULL;
+			}
+
+			else if ((prev->right != NULL) && (prev->right->key == rem->key))
+			{
+				prev->right = NULL;
+			}
+
+			delete(rem);
+			return;
+		}
+
+		else if ((tmp->left != NULL) && (tmp->right == NULL))
+		{
+			tmp->key = tmp->left->key;
+			tmp->value = tmp->left->value;
+			tmp->right = tmp->left->right;
+			tmp->left = tmp->left->left;
+			delete(tmp->left);
+			return;
+		}
+
+		else if ((tmp->left == NULL) && (tmp->right != NULL))
+		{
+			tmp->key = tmp->right->key;
+			tmp->value = tmp->right->value;
+			tmp->left = tmp->right->left;
+			tmp->right = tmp->right->right;
+			delete(tmp->right);
+			return;
+		}
 		
+		else if ((tmp->left != NULL) && (tmp->right != NULL))
+		{
+			prev = find_largest(tmp->left);
+			keypass = prev->key;
+			valuepass = prev->value;
+			recursive_remove(prev);
+			tmp->key = keypass;
+			tmp->value = valuepass;
+		}
 	}
 
 	node* find_largest(node *tmp)
 	{
-		node *ret, *prev;
-		ret = tmp;
 		if (tmp->right != NULL)
 			{
-				prev = tmp;
-				find_largest(tmp->right);
+				tmp = find_largest(tmp->right);
 			}
 
-		return prev;
+		return tmp;
 	}
 
 public:
@@ -206,15 +255,13 @@ public:
 		node *tmp;
 		tmp = root;
 
-		if (root == NULL)
+		if (!root)
 		{
 			root = new node(k, v);
-			cout << "root has been modified" << endl;
 			return;
 		}
-		if (root != NULL)
+		if (root)
 		{
-			cout << "comparing k to root" << endl;
 			place(k, v, tmp);
 		}
 	}
@@ -227,6 +274,12 @@ public:
 		node *tmp;
 		tmp = root;
 		string novalue = "No value";
+
+		if (!root)
+		{
+			cout << "Sorry, no value at that key" << endl;
+			return novalue;
+		}
 
 		while (search != tmp->key)
 		{
@@ -264,12 +317,20 @@ public:
 
 	string recursive_get(int k)
 	{
+
 		int search = k;
 		node *tmp, *ret;
 		tmp = root;
+		ret = root;
 		string novalue = "No value";
 
-		ret = rec_get(k, tmp);
+		if (!root)
+		{
+			cout << "Sorry, no value at that key" << endl;
+			return novalue;
+		}
+
+		ret = rec_get(k, tmp, ret, false);
 
 		if (ret != NULL)
 			return ret->value;
@@ -283,28 +344,35 @@ public:
 
 	void remove(int k)
 	{
+		if (!root)
+		{
+			cout << "Sorry, no value at that key" << endl;
+			return;
+		}
+
 		node *rem, *tmp, *prev;
-		tmp = root;
-		tmp = rec_get(k, tmp);
-//		cout << "recvd value" << endl;
+		rem = root;
+		prev = root;
+		tmp = rec_get(k, rem, prev, false);
 
 		if (tmp == NULL)
 		{
 			cout << "Sorry, no value at that key" << endl;
 			return;
 		}
+
+		recursive_remove(tmp);
+
 		
-		prev = find_largest(tmp);
-		cout << "value to remove " << prev->key << endl;
-		rem = prev->right;
-		tmp->key = rem->key;
-		tmp->value = rem->value;
-		prev->right = NULL;
-		delete(rem);
 	}
 
 	void dump()
 	{
+		if (!root)
+		{
+			cout << "Sorry, no data exists" << endl;
+			return;
+		}
 		node *tmp;
 		tmp = root;
 		int level = 1;
@@ -315,6 +383,11 @@ public:
 
 	void dump_rev()
 	{
+		if (!root)
+		{
+			cout << "Sorry, no data exists" << endl;
+			return;
+		}
 		node *tmp;
 		tmp = root;
 		int level = 1;
